@@ -76,7 +76,9 @@ pip install vortex-python-sdk
 **Other Languages:**
 - Ruby: `gem install vortex-ruby-sdk`
 - Java: See packages/vortex-java-sdk/README.md
-- Go: `go get github.com/TeamVortexSoftware/vortex-go-sdk`
+- Go: 
+  1. Add `github.com/TeamVortexSoftware/vortex-go-sdk` to your `go.mod` dependencies (e.g., `go get github.com/TeamVortexSoftware/vortex-go-sdk@v1.0.0`)
+  2. Run `go mod tidy` to install.
 - C#: `dotnet add package VortexSoftware.Sdk`
 - PHP: `composer require teamvortexsoftware/vortex-php-sdk`
 - Rust: `cargo add vortex-rust-sdk`
