@@ -1,0 +1,33 @@
+{
+  "name": "@teamvortexsoftware/vortex-claude",
+  "version": "0.1.0",
+  "description": "Add Vortex AI integration to Claude Code in your project",
+  "bin": {
+    "vortex-claude": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc && cp -r templates dist/",
+    "prepublish": "pnpm run build"
+  },
+  "keywords": [
+    "vortex",
+    "claude",
+    "ai",
+    "integration",
+    "invitations"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.9.2"
+  }
+}
