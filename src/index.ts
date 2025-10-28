@@ -61,8 +61,8 @@ async function initVortexClaude() {
   let content = await fs.readFile(templateFile, 'utf-8');
 
   // Inject the API key and widget ID into the template
-  content = content.replace('{{VORTEX_API_KEY}}', apiKey);
-  content = content.replace('{{VORTEX_WIDGET_ID}}', widgetId);
+  content = content.replaceAll('{{VORTEX_API_KEY}}', apiKey);
+  content = content.replaceAll('{{VORTEX_WIDGET_ID}}', widgetId);
 
   // Write the customized command file
   const targetFile = path.join(targetDir, 'commands', 'integrate-vortex.md');
