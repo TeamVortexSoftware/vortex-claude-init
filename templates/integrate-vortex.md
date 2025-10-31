@@ -204,7 +204,7 @@ function InviteButton({ workspace }) {
   return (
     <VortexInvite
       widgetId="{{VORTEX_WIDGET_ID}}"
-      jwt={jwt}
+      user={jwt}
       isLoading={isLoading}
       group={{
         type: 'workspace',
@@ -287,7 +287,7 @@ function InviteButton({ workspace }) {
   return (
     <VortexInvite
       widgetId="{{VORTEX_WIDGET_ID}}"
-      jwt={jwt}
+      user={jwt}
       isLoading={loading}
       group={{
         type: 'workspace',
