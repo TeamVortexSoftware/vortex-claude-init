@@ -36,7 +36,7 @@ async function initVortexClaude() {
 
   console.log('🚀 Setting up Vortex AI integration for Claude Code...\n');
 
-  // Prompt for API key and widget ID
+  // Prompt for API key and component ID
   console.log('First, we need your Vortex credentials:\n');
 
   const apiKey = await promptUser('Vortex API Key (from https://admin.vortexsoftware.com/members/api-keys): ');
@@ -45,9 +45,9 @@ async function initVortexClaude() {
     process.exit(1);
   }
 
-  const widgetId = await promptUser('Widget ID (from https://admin.vortexsoftware.com): ');
-  if (!widgetId) {
-    console.error('❌ Widget ID is required');
+  const componentId = await promptUser('Component ID (from https://admin.vortexsoftware.com): ');
+  if (!componentId) {
+    console.error('❌ Component ID is required');
     process.exit(1);
   }
 
@@ -60,9 +60,9 @@ async function initVortexClaude() {
   const templateFile = path.join(templatesDir, 'integrate-vortex.md');
   let content = await fs.readFile(templateFile, 'utf-8');
 
-  // Inject the API key and widget ID into the template
+  // Inject the API key and component ID into the template
   content = content.replaceAll('{{VORTEX_API_KEY}}', apiKey);
-  content = content.replaceAll('{{VORTEX_WIDGET_ID}}', widgetId);
+  content = content.replaceAll('{{VORTEX_COMPONENT_ID}}', componentId);
 
   // Write the customized command file
   const targetFile = path.join(targetDir, 'commands', 'integrate-vortex.md');
@@ -105,10 +105,10 @@ async function initVortexClaude() {
   console.log('   3. Paste the command above');
   console.log('   4. Claude will implement Vortex using your credentials!\n');
   console.log('Your API key: ' + apiKey.substring(0, 20) + '...');
-  console.log('Your widget ID: ' + widgetId + '\n');
+  console.log('Your Component ID: ' + componentId + '\n');
 
   // Try to open VS Code reload command (if possible)
-  console.log('💡 Tip: After reloading, Claude will already have your API key and widget ID.');
+  console.log('💡 Tip: After reloading, Claude will already have your API key and component ID.');
   console.log('   You can just focus on answering questions about your codebase.\n');
 }
 
