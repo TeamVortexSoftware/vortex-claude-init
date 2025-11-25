@@ -10,7 +10,7 @@ npx @teamvortexsoftware/vortex-claude init
 
 You'll be prompted for:
 - Your Vortex API key
-- Your widget ID
+- Your component ID
 
 That's it! This adds AI-powered Vortex integration to your project with your credentials baked in.
 
@@ -29,13 +29,13 @@ Adds a `/integrate-vortex` slash command to VS Code with Claude Code that:
 
 1. **Get your credentials**:
    - [API key](https://admin.vortexsoftware.com/members/api-keys)
-   - [Widget ID](https://admin.vortexsoftware.com) (create a widget first)
+   - [Component ID](https://admin.vortexsoftware.com) (create a component first)
 
 2. **Run init** (one time):
    ```bash
    npx @teamvortexsoftware/vortex-claude init
    ```
-   Enter your API key and widget ID when prompted.
+   Enter your API key and component ID when prompted.
 
 3. **Reload VS Code**:
    - Cmd/Ctrl + Shift + P → "Reload Window"
@@ -53,7 +53,7 @@ Adds a `/integrate-vortex` slash command to VS Code with Claude Code that:
 
 - VS Code with [Claude Code extension](https://claude.com/claude-code)
 - [Vortex API key](https://admin.vortexsoftware.com/members/api-keys)
-- [Vortex widget](https://admin.vortexsoftware.com)
+- [Vortex component](https://admin.vortexsoftware.com)
 
 ## Supported Tech Stacks
 
@@ -61,7 +61,7 @@ Adds a `/integrate-vortex` slash command to VS Code with Claude Code that:
 - React, Next.js
 - React Native
 - Angular (14, 19, 20)
-- Vue (coming soon)
+- Vue (2, 3)
 
 **Backend:**
 - Node.js (Express, Fastify)
@@ -83,7 +83,7 @@ npx @teamvortexsoftware/vortex-claude init
 First, we need your Vortex credentials:
 
 Vortex API Key (from https://admin.vortexsoftware.com/members/api-keys): vortex_xxxxx
-Widget ID (from https://admin.vortexsoftware.com): widget_yyyyy
+Component ID (from https://admin.vortexsoftware.com): component_yyyyy
 
 ✅ Credentials received
 ✅ Created .claude/commands/integrate-vortex.md

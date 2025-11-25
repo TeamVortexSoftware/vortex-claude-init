@@ -14,14 +14,26 @@ Analyze their codebase, understand their tech stack, and implement Vortex with m
 
 **The user has already provided these during setup:**
 - **API Key**: `{{VORTEX_API_KEY}}`
-- **Widget ID**: `{{VORTEX_WIDGET_ID}}`
+- **Component ID**: `{{VORTEX_COMPONENT_ID}}`
 
 Use these values throughout the implementation. The API key has also been added to their `.env.local` file.
 
 ## Step 1: Understand Their Codebase
 
+**CRITICAL: Framework Detection and Focus**
+
+Once you detect their frontend framework, **ONLY provide implementation details for that specific framework**. Do NOT show examples or talk about other frameworks unless explicitly asked.
+
+**Detection Process:**
+1. Search for package.json files and check dependencies
+2. Look for framework-specific config files (vite.config.ts, angular.json, next.config.js, etc.)
+3. Check file structure patterns (app/, src/App.vue, src/main.ts, etc.)
+
 **Explore and identify:**
-1. **Frontend Framework**: React, Next.js, Angular, Vue, React Native?
+1. **Frontend Framework**: React, Next.js, Angular, Vue (2 or 3), React Native?
+   - **Vue Detection**: Look for vue dependency in package.json
+   - **Vue Version**: Check if it's Vue 2 (vue@^2.x) or Vue 3 (vue@^3.x)
+   - **Build Tool**: Vite (vite.config.ts/js), Vue CLI, or Webpack
 2. **Backend**: Node.js, Python, Ruby, Java, Go, etc.?
 3. **Authentication System**: How do they manage users? (next-auth, Clerk, custom JWT, etc.)
 4. **Grouping Mechanism**: What organizational structure do they have?
@@ -31,27 +43,36 @@ Use these values throughout the implementation. The API key has also been added 
 
 **Ask them:**
 - "What's your main use case for invitations?" (e.g., "Users invite others to workspaces")
-- Confirm the widget ID is correct: `{{VORTEX_WIDGET_ID}}`
+- Confirm the component ID is correct: `{{VORTEX_COMPONENT_ID}}`
+- If unclear from detection, ask: "I found [detected framework], is this correct?"
 
 ## Step 2: Choose the Right Packages
 
+**IMPORTANT**: Only show package installation commands relevant to their detected stack. Do NOT list all options unless they ask.
+
 ### Frontend Packages
 
-**React / Next.js:**
+**For React / Next.js:**
 ```bash
 npm install @teamvortexsoftware/vortex-react @teamvortexsoftware/vortex-react-provider
 ```
 
-**React Native:**
+**For React Native:**
 ```bash
 npm install @teamvortexsoftware/vortex-react-native react-native-svg react-native-vector-icons
 ```
 
-**Angular:**
+**For Angular:**
 Choose based on their Angular version:
 - Angular 20: `@teamvortexsoftware/vortex-angular-20`
 - Angular 19: `@teamvortexsoftware/vortex-angular-19`
 - Angular 14: `@teamvortexsoftware/vortex-angular-14`
+
+**For Vue (2 or 3):**
+```bash
+npm install @teamvortexsoftware/vortex-wc
+```
+Vue uses the web component package directly. Configuration differs between Vue 2 and Vue 3 (see implementation examples below).
 
 ### Backend Packages
 
@@ -176,6 +197,8 @@ jwt, err := client.GenerateJWT(user, nil)
 
 ## Step 4: Implementation Pattern
 
+**CRITICAL**: Based on their detected frontend framework, show ONLY the relevant implementation pattern below. Skip the others to avoid confusion.
+
 ### For Next.js (Easiest)
 
 **1. Run setup wizard:**
@@ -236,7 +259,7 @@ function InviteButton({ workspace }) {
 
   return (
     <VortexInvite
-      componentId="{{VORTEX_WIDGET_ID}}"
+      componentId="{{VORTEX_COMPONENT_ID}}"
       jwt={jwt}
       isLoading={isLoading}
       scope={workspace.id}
@@ -318,7 +341,7 @@ function InviteButton({ workspace }) {
 
   return (
     <VortexInvite
-      componentId="{{VORTEX_WIDGET_ID}}"
+      componentId="{{VORTEX_COMPONENT_ID}}"
       jwt={jwt}
       isLoading={loading}
       scope={workspace.id}
@@ -392,7 +415,7 @@ import { VortexService } from './services/vortex.service';
     <div>
       <h2>Invite to {{ workspace.name }}</h2>
       <vortex-invite
-        [componentId]="'{{VORTEX_WIDGET_ID}}'"
+        [componentId]="'{{VORTEX_COMPONENT_ID}}'"
         [jwt]="jwt"
         [isLoading]="isLoading"
         [scope]="workspace.id"
@@ -443,7 +466,7 @@ export class AppModule { }
   selector: 'app-workspace',
   template: `
     <vortex-invite
-      [componentId]="'{{VORTEX_WIDGET_ID}}'"
+      [componentId]="'{{VORTEX_COMPONENT_ID}}'"
       [jwt]="jwt"
       [isLoading]="isLoading"
       [scope]="workspace.id"
@@ -456,6 +479,189 @@ export class WorkspaceComponent {
   // ... same implementation as above
 }
 ```
+
+### For Vue 3
+
+**1. Install package**:
+```bash
+npm install @teamvortexsoftware/vortex-wc
+```
+
+**2. Configure Vite** to recognize Vortex custom elements (`vite.config.ts`):
+```typescript
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('vortex-') || tag.startsWith('vrtx-'),
+        },
+      },
+    }),
+  ],
+});
+```
+
+**3. Load web component** in `main.ts`:
+```typescript
+import { createApp } from 'vue';
+import App from './App.vue';
+
+// Import Vortex web components
+import '@teamvortexsoftware/vortex-wc';
+
+createApp(App).mount('#app');
+```
+
+**4. Backend JWT endpoint** (Node.js/Express):
+```typescript
+import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
+
+app.post('/api/vortex/jwt', authenticate, (req, res) => {
+  const user = req.user;
+
+  const jwt = generateJwt({
+    user: {
+      id: user.id,
+      email: user.email,
+      adminScopes: user.isAdmin ? ['autoJoin'] : [],
+    },
+    apiKey: process.env.VORTEX_API_KEY,
+  });
+
+  res.json({ jwt });
+});
+```
+
+**5. Use component in Vue template** with the **dot modifier** (`.`) to set properties directly:
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+
+const jwt = ref('');
+const isLoading = ref(true);
+const workspace = { id: 'ws-123', name: 'My Workspace' };
+
+onMounted(async () => {
+  const response = await fetch('/api/vortex/jwt', { method: 'POST' });
+  const data = await response.json();
+  jwt.value = data.jwt;
+  isLoading.value = false;
+});
+
+const handleInvite = (data: any) => {
+  console.log('Invitations sent!', data);
+};
+</script>
+
+<template>
+  <div>
+    <h2>Invite to {{ workspace.name }}</h2>
+    <vortex-invite
+      .componentId="{{VORTEX_COMPONENT_ID}}"
+      .jwt="jwt"
+      .isLoading="isLoading"
+      .scope="workspace.id"
+      .scopeType="'workspace'"
+      .onInvite="handleInvite"
+    />
+  </div>
+</template>
+```
+
+**Important**: Use the **dot modifier** (`.prop`) in Vue 3 to set properties directly on the web component. This prevents Lit's "change-in-update" warnings by avoiding Vue's reactive system during property assignment.
+
+### For Vue 2
+
+**1. Install package**:
+```bash
+npm install @teamvortexsoftware/vortex-wc
+```
+
+**2. Configure Vue to ignore custom elements** in `main.js`:
+```javascript
+import Vue from 'vue';
+import App from './App.vue';
+
+// Import Vortex web components
+import '@teamvortexsoftware/vortex-wc';
+
+// Tell Vue to ignore Vortex custom elements
+Vue.config.ignoredElements = [
+  /^vortex-/,
+  /^vrtx-/
+];
+
+new Vue({
+  render: h => h(App),
+}).$mount('#app');
+```
+
+**3. Backend JWT endpoint** (same as Vue 3 - Node.js/Express):
+```typescript
+import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
+
+app.post('/api/vortex/jwt', authenticate, (req, res) => {
+  const user = req.user;
+
+  const jwt = generateJwt({
+    user: {
+      id: user.id,
+      email: user.email,
+      adminScopes: user.isAdmin ? ['autoJoin'] : [],
+    },
+    apiKey: process.env.VORTEX_API_KEY,
+  });
+
+  res.json({ jwt });
+});
+```
+
+**4. Use component imperatively** in Vue 2 (set properties via JavaScript, not template attributes):
+```vue
+<template>
+  <div>
+    <h2>Invite to {{ workspace.name }}</h2>
+    <vortex-invite ref="invite" />
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      workspace: { id: 'ws-123', name: 'My Workspace' },
+    };
+  },
+  mounted() {
+    this.setupVortex();
+  },
+  methods: {
+    async setupVortex() {
+      // Fetch JWT
+      const response = await fetch('/api/vortex/jwt', { method: 'POST' });
+      const data = await response.json();
+
+      // Set properties imperatively via JavaScript
+      const inviteElement = this.$refs.invite;
+      inviteElement.componentId = '{{VORTEX_COMPONENT_ID}}';
+      inviteElement.jwt = data.jwt;
+      inviteElement.isLoading = false;
+      inviteElement.scope = this.workspace.id;
+      inviteElement.scopeType = 'workspace';
+      inviteElement.onInvite = (data) => {
+        console.log('Invitations sent!', data);
+      };
+    },
+  },
+};
+</script>
+```
+
+**Why imperative for Vue 2?**: Vue 2 has limited web component support. Setting properties via JavaScript in `mounted()` avoids reactivity issues and ensures correct property assignment.
 
 ## Step 5: Landing Page
 
@@ -489,7 +695,7 @@ export default function InviteLanding({ searchParams }) {
 }
 ```
 
-**Configure in widget:** Set landing page URL to your route in the Vortex admin panel.
+**Configure in component:** Set landing page URL to your route in the Vortex admin panel.
 
 ## Step 6: Component Configuration
 
@@ -499,7 +705,7 @@ Tell them to configure in Vortex admin (https://admin.vortexsoftware.com):
 3. Customize email template
 4. Add template variables (optional)
 5. Publish the component
-6. Copy the component ID ({{VORTEX_WIDGET_ID}})
+6. Copy the component ID ({{VORTEX_COMPONENT_ID}})
 
 ## Implementation Checklist
 
@@ -525,7 +731,7 @@ Use this checklist as you implement:
 4. **Landing page URL in component config** - Must match their route
 5. **Use VortexProvider for React** - Simplifies state management
 6. **Test in STG environment first** - Use STG API key for testing
-7. **Component props**: Use `componentId`, `scope`, `scopeType` (not widgetId, groupId, groupType)
+7. **Component props**: Use `componentId`, `scope`, `scopeType` (NOT the old widgetId, groupId, groupType terminology)
 
 ## Documentation References
 
