@@ -13,6 +13,7 @@ Analyze their codebase, understand their tech stack, and implement Vortex with m
 ## Vortex Credentials
 
 **The user has already provided these during setup:**
+
 - **API Key**: `{{VORTEX_API_KEY}}`
 - **Component ID**: `{{VORTEX_COMPONENT_ID}}`
 
@@ -25,11 +26,13 @@ Use these values throughout the implementation. The API key has also been added 
 Once you detect their frontend framework, **ONLY provide implementation details for that specific framework**. Do NOT show examples or talk about other frameworks unless explicitly asked.
 
 **Detection Process:**
+
 1. Search for package.json files and check dependencies
 2. Look for framework-specific config files (vite.config.ts, angular.json, next.config.js, etc.)
 3. Check file structure patterns (app/, src/App.vue, src/main.ts, etc.)
 
 **Explore and identify:**
+
 1. **Frontend Framework**: React, Next.js, Angular, Vue (2 or 3), React Native?
    - **Vue Detection**: Look for vue dependency in package.json
    - **Vue Version**: Check if it's Vue 2 (vue@^2.x) or Vue 3 (vue@^3.x)
@@ -42,6 +45,7 @@ Once you detect their frontend framework, **ONLY provide implementation details 
 5. **Existing Invitation Flow**: Do they have one? Where is it?
 
 **Ask them:**
+
 - "What's your main use case for invitations?" (e.g., "Users invite others to workspaces")
 - Confirm the component ID is correct: `{{VORTEX_COMPONENT_ID}}`
 - If unclear from detection, ask: "I found [detected framework], is this correct?"
@@ -53,36 +57,43 @@ Once you detect their frontend framework, **ONLY provide implementation details 
 ### Frontend Packages
 
 **For React / Next.js:**
+
 ```bash
 npm install @teamvortexsoftware/vortex-react @teamvortexsoftware/vortex-react-provider
 ```
 
 **For React Native:**
+
 ```bash
 npm install @teamvortexsoftware/vortex-react-native react-native-svg react-native-vector-icons
 ```
 
 **For Angular:**
 Choose based on their Angular version:
+
 - Angular 20: `@teamvortexsoftware/vortex-angular-20`
 - Angular 19: `@teamvortexsoftware/vortex-angular-19`
 - Angular 14: `@teamvortexsoftware/vortex-angular-14`
 
 **For Vue (2 or 3):**
+
 ```bash
 npm install @teamvortexsoftware/vortex-wc
 ```
+
 Vue uses the web component package directly. Configuration differs between Vue 2 and Vue 3 (see implementation examples below).
 
 ### Backend Packages
 
 **Next.js (App Router):**
+
 ```bash
 npm install @teamvortexsoftware/vortex-nextjs-15-sdk
 npx vortex-setup  # Auto-generates all API routes
 ```
 
 **Node.js / Express:**
+
 ```bash
 npm install @teamvortexsoftware/vortex-node-22-sdk
 # or
@@ -90,14 +101,16 @@ npm install @teamvortexsoftware/vortex-express-5-sdk
 ```
 
 **Python:**
+
 ```bash
 pip install vortex-python-sdk
 ```
 
 **Other Languages:**
+
 - Ruby: `gem install vortex-ruby-sdk`
 - Java: See packages/vortex-java-sdk/README.md
-- Go: 
+- Go:
   1. Add `github.com/TeamVortexSoftware/vortex-go-sdk` to your `go.mod` dependencies (e.g., `go get github.com/TeamVortexSoftware/vortex-go-sdk@v1.0.0`)
   2. Run `go mod tidy` to install.
 - C#: `dotnet add package VortexSoftware.Sdk`
@@ -111,36 +124,40 @@ pip install vortex-python-sdk
 **Why:** Vortex uses JWTs to authenticate users securely.
 
 **New Simplified Format:**
+
 ```typescript
 {
   user: {
     id: string;                  // Their internal user ID
     email: string;               // User's email address
-    adminScopes?: string[];      // Optional: ['autoJoin'] grants auto-join admin privileges
+    adminScopes?: string[];      // Optional: ['autojoin'] grants autojoin admin privileges
   }
 }
 ```
 
 **Implementation:**
+
 - JWT generation MUST happen server-side with their Vortex API key
 - Never expose the API key to the frontend
 - JWTs expire after 24 hours (VortexProvider handles refresh automatically)
 
 **Example JWT Generation (Node.js/TypeScript):**
+
 ```typescript
-import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
+import { generateJwt } from "@teamvortexsoftware/vortex-node-22-sdk";
 
 const jwt = generateJwt({
   user: {
     id: user.id,
     email: user.email,
-    adminScopes: user.isAdmin ? ['autoJoin'] : [], // Optional: grants auto-join admin privileges
+    adminScopes: user.isAdmin ? ["autojoin"] : [], // Optional: grants autojoin admin privileges
   },
   apiKey: process.env.VORTEX_API_KEY,
 });
 ```
 
 **Example JWT Generation (Python):**
+
 ```python
 from vortex_sdk import Vortex
 
@@ -150,12 +167,13 @@ jwt = vortex.generate_jwt(
     user={
         "id": user.id,
         "email": user.email,
-        "admin_scopes": ["autoJoin"] if user.is_admin else []  # Optional
+        "admin_scopes": ["autojoin"] if user.is_admin else []  # Optional
     }
 )
 ```
 
 **Example JWT Generation (Go):**
+
 ```go
 import "github.com/vortexsoftware/vortex-go-sdk"
 
@@ -164,7 +182,7 @@ client := vortex.NewClient(os.Getenv("VORTEX_API_KEY"))
 user := &vortex.User{
     ID:          user.ID,
     Email:       user.Email,
-    AdminScopes: []string{"autoJoin"}, // Optional: grants auto-join admin privileges
+    AdminScopes: []string{"autojoin"}, // Optional: grants autojoin admin privileges
 }
 
 jwt, err := client.GenerateJWT(user, nil)
@@ -175,6 +193,7 @@ jwt, err := client.GenerateJWT(user, nil)
 **What:** Scopes represent any organizational unit in their app where invitations are targeted.
 
 **Common scope types:**
+
 - `workspace` - Top-level organizational unit
 - `team` - Sub-group within organization
 - `project` - Project or repository
@@ -182,6 +201,7 @@ jwt, err := client.GenerateJWT(user, nil)
 - `channel` - Communication channel
 
 **Important:**
+
 - Scopes are THEIR data structure, Vortex just stores the reference
 - When invitation is accepted, THEY create the actual membership in their database
 - Each invitation targets one specific scope (e.g., scope="team-123", scopeType="team")
@@ -202,13 +222,18 @@ jwt, err := client.GenerateJWT(user, nil)
 ### For Next.js (Easiest)
 
 **1. Run setup wizard:**
+
 ```bash
 npx vortex-setup
 ```
 
 **2. Configure authentication** in `lib/vortex-config.ts`:
+
 ```typescript
-import { configureVortexLazy, createAllowAllAccessControl } from '@teamvortexsoftware/vortex-nextjs-15-sdk';
+import {
+  configureVortexLazy,
+  createAllowAllAccessControl,
+} from "@teamvortexsoftware/vortex-nextjs-15-sdk";
 
 configureVortexLazy(async () => ({
   apiKey: process.env.VORTEX_API_KEY!,
@@ -222,7 +247,7 @@ configureVortexLazy(async () => ({
     return {
       userId: session.user.id,
       userEmail: session.user.email,
-      adminScopes: session.user.isAdmin ? ['autoJoin'] : [], // Optional: grants auto-join admin privileges
+      adminScopes: session.user.isAdmin ? ["autojoin"] : [], // Optional: grants autojoin admin privileges
     };
   },
 
@@ -232,6 +257,7 @@ configureVortexLazy(async () => ({
 ```
 
 **3. Add provider to layout** (`app/layout.tsx`):
+
 ```typescript
 import '../lib/vortex-config';
 import { VortexProvider } from '@teamvortexsoftware/vortex-react-provider';
@@ -250,6 +276,7 @@ export default function RootLayout({ children }) {
 ```
 
 **4. Use component** anywhere:
+
 ```typescript
 import { VortexInvite } from '@teamvortexsoftware/vortex-react';
 import { useVortexJWT } from '@teamvortexsoftware/vortex-react-provider';
@@ -276,20 +303,21 @@ function InviteButton({ workspace }) {
 ### For React + Node.js Backend
 
 **Backend (Express):**
+
 ```typescript
-import { generateJwt, Vortex } from '@teamvortexsoftware/vortex-node-22-sdk';
+import { generateJwt, Vortex } from "@teamvortexsoftware/vortex-node-22-sdk";
 
 const vortex = new Vortex(process.env.VORTEX_API_KEY);
 
 // JWT endpoint
-app.post('/api/vortex/jwt', authenticate, (req, res) => {
+app.post("/api/vortex/jwt", authenticate, (req, res) => {
   const user = req.user; // From their auth middleware
 
   const jwt = generateJwt({
     user: {
       id: user.id,
       email: user.email,
-      adminScopes: user.isAdmin ? ['autoJoin'] : [], // Optional
+      adminScopes: user.isAdmin ? ["autojoin"] : [], // Optional
     },
     apiKey: process.env.VORTEX_API_KEY,
   });
@@ -298,18 +326,18 @@ app.post('/api/vortex/jwt', authenticate, (req, res) => {
 });
 
 // Get invitation (for landing page)
-app.get('/api/invitations/:id', async (req, res) => {
+app.get("/api/invitations/:id", async (req, res) => {
   const invitation = await vortex.getInvitation(req.params.id);
   res.json(invitation);
 });
 
 // Accept invitation (during signup)
-app.post('/api/invitations/accept', async (req, res) => {
+app.post("/api/invitations/accept", async (req, res) => {
   const { email, invitationIds } = req.body;
 
   await vortex.acceptInvitations(invitationIds, {
-    type: 'email',
-    value: email
+    type: "email",
+    value: email,
   });
 
   // NOW create actual memberships in your database
@@ -323,6 +351,7 @@ app.post('/api/invitations/accept', async (req, res) => {
 ```
 
 **Frontend:**
+
 ```typescript
 import { VortexInvite } from '@teamvortexsoftware/vortex-react';
 
@@ -354,6 +383,7 @@ function InviteButton({ workspace }) {
 ### For Angular
 
 **1. Install package** (choose based on their Angular version):
+
 ```bash
 npm install @teamvortexsoftware/vortex-angular-20  # Angular 20
 # or
@@ -363,17 +393,18 @@ npm install @teamvortexsoftware/vortex-angular-14  # Angular 14
 ```
 
 **2. Backend JWT endpoint** (Node.js/Express):
-```typescript
-import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
 
-app.post('/api/vortex/jwt', authenticate, (req, res) => {
+```typescript
+import { generateJwt } from "@teamvortexsoftware/vortex-node-22-sdk";
+
+app.post("/api/vortex/jwt", authenticate, (req, res) => {
   const user = req.user;
 
   const jwt = generateJwt({
     user: {
       id: user.id,
       email: user.email,
-      adminScopes: user.isAdmin ? ['autoJoin'] : [],
+      adminScopes: user.isAdmin ? ["autojoin"] : [],
     },
     apiKey: process.env.VORTEX_API_KEY,
   });
@@ -383,32 +414,34 @@ app.post('/api/vortex/jwt', authenticate, (req, res) => {
 ```
 
 **3. Create Angular service** (`src/app/services/vortex.service.ts`):
+
 ```typescript
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class VortexService {
   constructor(private http: HttpClient) {}
 
   getJwt(): Observable<{ jwt: string }> {
-    return this.http.post<{ jwt: string }>('/api/vortex/jwt', {});
+    return this.http.post<{ jwt: string }>("/api/vortex/jwt", {});
   }
 }
 ```
 
 **4. Use component in template**:
+
 ```typescript
 // Component TypeScript
-import { Component, OnInit } from '@angular/core';
-import { VortexInviteComponent } from '@teamvortexsoftware/vortex-angular-20';
-import { VortexService } from './services/vortex.service';
+import { Component, OnInit } from "@angular/core";
+import { VortexInviteComponent } from "@teamvortexsoftware/vortex-angular-20";
+import { VortexService } from "./services/vortex.service";
 
 @Component({
-  selector: 'app-workspace',
+  selector: "app-workspace",
   standalone: true,
   imports: [VortexInviteComponent],
   template: `
@@ -423,12 +456,12 @@ import { VortexService } from './services/vortex.service';
         (inviteSent)="onInviteSent($event)"
       />
     </div>
-  `
+  `,
 })
 export class WorkspaceComponent implements OnInit {
-  jwt = '';
+  jwt = "";
   isLoading = true;
-  workspace = { id: 'ws-123', name: 'My Workspace' };
+  workspace = { id: "ws-123", name: "My Workspace" };
 
   constructor(private vortexService: VortexService) {}
 
@@ -438,32 +471,33 @@ export class WorkspaceComponent implements OnInit {
         this.jwt = data.jwt;
         this.isLoading = false;
       },
-      error: (err) => console.error('Failed to get JWT:', err)
+      error: (err) => console.error("Failed to get JWT:", err),
     });
   }
 
   onInviteSent(data: any) {
-    console.log('Invitations sent!', data);
+    console.log("Invitations sent!", data);
   }
 }
 ```
 
 **5. For Angular 14** (non-standalone):
+
 ```typescript
 // app.module.ts
-import { VortexInviteModule } from '@teamvortexsoftware/vortex-angular-14';
+import { VortexInviteModule } from "@teamvortexsoftware/vortex-angular-14";
 
 @NgModule({
   imports: [
     // ... other imports
-    VortexInviteModule
-  ]
+    VortexInviteModule,
+  ],
 })
-export class AppModule { }
+export class AppModule {}
 
 // Component
 @Component({
-  selector: 'app-workspace',
+  selector: "app-workspace",
   template: `
     <vortex-invite
       [componentId]="'{{VORTEX_COMPONENT_ID}}'"
@@ -473,7 +507,7 @@ export class AppModule { }
       [scopeType]="'workspace'"
       (inviteSent)="onInviteSent($event)"
     ></vortex-invite>
-  `
+  `,
 })
 export class WorkspaceComponent {
   // ... same implementation as above
@@ -483,21 +517,24 @@ export class WorkspaceComponent {
 ### For Vue 3
 
 **1. Install package**:
+
 ```bash
 npm install @teamvortexsoftware/vortex-wc
 ```
 
 **2. Configure Vite** to recognize Vortex custom elements (`vite.config.ts`):
+
 ```typescript
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [
     vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag.startsWith('vortex-') || tag.startsWith('vrtx-'),
+          isCustomElement: (tag) =>
+            tag.startsWith("vortex-") || tag.startsWith("vrtx-"),
         },
       },
     }),
@@ -506,28 +543,30 @@ export default defineConfig({
 ```
 
 **3. Load web component** in `main.ts`:
+
 ```typescript
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createApp } from "vue";
+import App from "./App.vue";
 
 // Import Vortex web components
-import '@teamvortexsoftware/vortex-wc';
+import "@teamvortexsoftware/vortex-wc";
 
-createApp(App).mount('#app');
+createApp(App).mount("#app");
 ```
 
 **4. Backend JWT endpoint** (Node.js/Express):
-```typescript
-import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
 
-app.post('/api/vortex/jwt', authenticate, (req, res) => {
+```typescript
+import { generateJwt } from "@teamvortexsoftware/vortex-node-22-sdk";
+
+app.post("/api/vortex/jwt", authenticate, (req, res) => {
   const user = req.user;
 
   const jwt = generateJwt({
     user: {
       id: user.id,
       email: user.email,
-      adminScopes: user.isAdmin ? ['autoJoin'] : [],
+      adminScopes: user.isAdmin ? ["autojoin"] : [],
     },
     apiKey: process.env.VORTEX_API_KEY,
   });
@@ -537,23 +576,24 @@ app.post('/api/vortex/jwt', authenticate, (req, res) => {
 ```
 
 **5. Use component in Vue template** with the **dot modifier** (`.`) to set properties directly:
+
 ```vue
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 
-const jwt = ref('');
+const jwt = ref("");
 const isLoading = ref(true);
-const workspace = { id: 'ws-123', name: 'My Workspace' };
+const workspace = { id: "ws-123", name: "My Workspace" };
 
 onMounted(async () => {
-  const response = await fetch('/api/vortex/jwt', { method: 'POST' });
+  const response = await fetch("/api/vortex/jwt", { method: "POST" });
   const data = await response.json();
   jwt.value = data.jwt;
   isLoading.value = false;
 });
 
 const handleInvite = (data: any) => {
-  console.log('Invitations sent!', data);
+  console.log("Invitations sent!", data);
 };
 </script>
 
@@ -577,41 +617,41 @@ const handleInvite = (data: any) => {
 ### For Vue 2
 
 **1. Install package**:
+
 ```bash
 npm install @teamvortexsoftware/vortex-wc
 ```
 
 **2. Configure Vue to ignore custom elements** in `main.js`:
+
 ```javascript
-import Vue from 'vue';
-import App from './App.vue';
+import Vue from "vue";
+import App from "./App.vue";
 
 // Import Vortex web components
-import '@teamvortexsoftware/vortex-wc';
+import "@teamvortexsoftware/vortex-wc";
 
 // Tell Vue to ignore Vortex custom elements
-Vue.config.ignoredElements = [
-  /^vortex-/,
-  /^vrtx-/
-];
+Vue.config.ignoredElements = [/^vortex-/, /^vrtx-/];
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app');
+  render: (h) => h(App),
+}).$mount("#app");
 ```
 
 **3. Backend JWT endpoint** (same as Vue 3 - Node.js/Express):
-```typescript
-import { generateJwt } from '@teamvortexsoftware/vortex-node-22-sdk';
 
-app.post('/api/vortex/jwt', authenticate, (req, res) => {
+```typescript
+import { generateJwt } from "@teamvortexsoftware/vortex-node-22-sdk";
+
+app.post("/api/vortex/jwt", authenticate, (req, res) => {
   const user = req.user;
 
   const jwt = generateJwt({
     user: {
       id: user.id,
       email: user.email,
-      adminScopes: user.isAdmin ? ['autoJoin'] : [],
+      adminScopes: user.isAdmin ? ["autojoin"] : [],
     },
     apiKey: process.env.VORTEX_API_KEY,
   });
@@ -621,6 +661,7 @@ app.post('/api/vortex/jwt', authenticate, (req, res) => {
 ```
 
 **4. Use component imperatively** in Vue 2 (set properties via JavaScript, not template attributes):
+
 ```vue
 <template>
   <div>
@@ -633,7 +674,7 @@ app.post('/api/vortex/jwt', authenticate, (req, res) => {
 export default {
   data() {
     return {
-      workspace: { id: 'ws-123', name: 'My Workspace' },
+      workspace: { id: "ws-123", name: "My Workspace" },
     };
   },
   mounted() {
@@ -642,18 +683,18 @@ export default {
   methods: {
     async setupVortex() {
       // Fetch JWT
-      const response = await fetch('/api/vortex/jwt', { method: 'POST' });
+      const response = await fetch("/api/vortex/jwt", { method: "POST" });
       const data = await response.json();
 
       // Set properties imperatively via JavaScript
       const inviteElement = this.$refs.invite;
-      inviteElement.componentId = '{{VORTEX_COMPONENT_ID}}';
+      inviteElement.componentId = "{{VORTEX_COMPONENT_ID}}";
       inviteElement.jwt = data.jwt;
       inviteElement.isLoading = false;
       inviteElement.scope = this.workspace.id;
-      inviteElement.scopeType = 'workspace';
+      inviteElement.scopeType = "workspace";
       inviteElement.onInvite = (data) => {
-        console.log('Invitations sent!', data);
+        console.log("Invitations sent!", data);
       };
     },
   },
@@ -668,6 +709,7 @@ export default {
 When someone clicks an invitation link, they land on: `yourapp.com/landing?invitationId=xxx`
 
 **Implement the landing page:**
+
 ```typescript
 // app/invite/landing/page.tsx (Next.js)
 export default function InviteLanding({ searchParams }) {
@@ -700,6 +742,7 @@ export default function InviteLanding({ searchParams }) {
 ## Step 6: Component Configuration
 
 Tell them to configure in Vortex admin (https://admin.vortexsoftware.com):
+
 1. Create a component
 2. Set landing page URL
 3. Customize email template
