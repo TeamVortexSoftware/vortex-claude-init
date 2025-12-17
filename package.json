@@ -7,8 +7,7 @@
   },
   "main": "./dist/index.js",
   "files": [
-    "dist",
-    "templates"
+    "dist"
   ],
   "scripts": {
     "prepack": "echo 'This package should not be published. Use publish:stg or publish:prod' && exit 1",
@@ -21,7 +20,8 @@
     "check-types": "tsc --noEmit",
     "distclean": "rm -rf ./dist ./dist.d",
     "clean": "rm -rf ./dist",
-    "build": "tsc && cp -r templates dist/"
+    "build": "tsc && pnpm run copy-templates",
+    "copy-templates": "mkdir -p dist/templates/vortex/fallbacks/backend dist/templates/vortex/fallbacks/frontend && cp ../../.claude/commands/integrate-vortex.md dist/templates/ && cp ../../.claude/commands/vortex/discover.md dist/templates/vortex/ && cp ../../.claude/commands/vortex/fallbacks/backend/*.md dist/templates/vortex/fallbacks/backend/ && cp ../../.claude/commands/vortex/fallbacks/frontend/*.md dist/templates/vortex/fallbacks/frontend/"
   },
   "keywords": [
     "vortex",

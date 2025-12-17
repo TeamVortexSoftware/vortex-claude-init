@@ -53,10 +53,12 @@ async function initVortexClaude() {
 
   console.log('\n✅ Credentials received\n');
 
-  // Create .claude/commands directory
+  // Create .claude/commands directory structure
   await fs.ensureDir(path.join(targetDir, 'commands'));
+  await fs.ensureDir(path.join(targetDir, 'commands', 'vortex', 'fallbacks', 'backend'));
+  await fs.ensureDir(path.join(targetDir, 'commands', 'vortex', 'fallbacks', 'frontend'));
 
-  // Read the template
+  // Read the main orchestrator template
   const templateFile = path.join(templatesDir, 'integrate-vortex.md');
   let content = await fs.readFile(templateFile, 'utf-8');
 
@@ -64,11 +66,27 @@ async function initVortexClaude() {
   content = content.replaceAll('{{VORTEX_API_KEY}}', apiKey);
   content = content.replaceAll('{{VORTEX_COMPONENT_ID}}', componentId);
 
-  // Write the customized command file
+  // Write the customized orchestrator command file
   const targetFile = path.join(targetDir, 'commands', 'integrate-vortex.md');
   await fs.writeFile(targetFile, content);
 
-  console.log('✅ Created .claude/commands/integrate-vortex.md\n');
+  console.log('✅ Created .claude/commands/integrate-vortex.md');
+
+  // Copy the discovery command (no credential injection needed)
+  await fs.copy(
+    path.join(templatesDir, 'vortex', 'discover.md'),
+    path.join(targetDir, 'commands', 'vortex', 'discover.md')
+  );
+
+  console.log('✅ Created .claude/commands/vortex/discover.md');
+
+  // Copy all fallback guides (fs-extra copies directories recursively by default)
+  await fs.copy(
+    path.join(templatesDir, 'vortex', 'fallbacks'),
+    path.join(targetDir, 'commands', 'vortex', 'fallbacks')
+  );
+
+  console.log('✅ Created fallback implementation guides\n');
 
   // Also add to .env if it exists (or create it)
   const envPath = path.join(cwd, '.env.local');
