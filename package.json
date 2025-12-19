@@ -1,6 +1,6 @@
 {
   "name": "@teamvortexsoftware/vortex-claude",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Add Vortex AI integration to Claude Code in your project",
   "bin": {
     "vortex-claude": "./dist/index.js"
